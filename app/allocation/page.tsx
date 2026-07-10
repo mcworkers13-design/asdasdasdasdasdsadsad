@@ -1,5 +1,5 @@
 "use client";
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 
 type Community = {
   id: string;
@@ -21,7 +21,7 @@ export default function AllocationPage() {
   const [communities, setCommunities] = useState<Community[]>([]);
   const [newUsername, setNewUsername] = useState("");
   const [newFollowers, setNewFollowers] = useState<number | "">("");
-
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const applySettings = () => {
     setTotalSpots(inputTotalSpots === "" ? 1 : inputTotalSpots);
     setMaxCap(inputMaxCap);
@@ -135,6 +135,52 @@ export default function AllocationPage() {
   }, [communities, totalSpots, maxCap, minCap]);
 
   const totalAllocated = allocations.reduce((sum, c) => sum + c.allocated, 0);
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const text = event.target?.result as string;
+      const lines = text.split('\n');
+      const newCommunities: Community[] = [];
+      
+      // Skip header (assuming first row might be 'Username,Followers'), parse rows
+      // We check if the first line looks like a header, if so start at 1, else 0
+      const startIdx = lines[0]?.toLowerCase().includes('username') ? 1 : 0;
+      
+      for (let i = startIdx; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line) continue;
+        
+        // Expected CSV format: Username,Followers,...
+        const parts = line.split(',');
+        if (parts.length >= 2) {
+          const username = parts[0].trim();
+          const followers = parseInt(parts[1].trim().replace(/[^0-9]/g, ''));
+          
+          if (username && !isNaN(followers)) {
+            newCommunities.push({
+              id: Math.random().toString(36).substring(7),
+              username: username.startsWith('@') ? username : `@${username}`,
+              followers: followers
+            });
+          }
+        }
+      }
+      
+      if (newCommunities.length > 0) {
+        setCommunities(prev => [...prev, ...newCommunities]);
+      }
+      
+      // Reset input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    };
+    reader.readAsText(file);
+  };
 
   const exportCSV = () => {
     const header = "Username,Followers,Allocated Spots\n";
@@ -258,13 +304,28 @@ export default function AllocationPage() {
               </div>
             </div>
             
-            <button 
-              onClick={exportCSV}
-              disabled={communities.length === 0}
-              className="bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white py-2 px-4 rounded-lg text-sm font-bold transition-colors"
-            >
-              Export CSV
-            </button>
+            <div className="flex gap-3">
+              <input 
+                type="file" 
+                accept=".csv" 
+                className="hidden" 
+                ref={fileInputRef}
+                onChange={handleFileUpload}
+              />
+              <button 
+                onClick={() => fileInputRef.current?.click()}
+                className="bg-gray-800 hover:bg-gray-700 text-white py-2 px-4 rounded-lg text-sm font-bold transition-colors"
+              >
+                Import CSV
+              </button>
+              <button 
+                onClick={exportCSV}
+                disabled={communities.length === 0}
+                className="bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white py-2 px-4 rounded-lg text-sm font-bold transition-colors"
+              >
+                Export CSV
+              </button>
+            </div>
           </div>
           
           <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
