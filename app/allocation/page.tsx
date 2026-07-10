@@ -171,7 +171,15 @@ export default function AllocationPage() {
       }
       
       if (newCommunities.length > 0) {
-        setCommunities(prev => [...prev, ...newCommunities]);
+        setCommunities(prev => {
+          const uniqueMap = new Map(prev.map(c => [c.username.toLowerCase(), c]));
+          newCommunities.forEach(nc => {
+            if (!uniqueMap.has(nc.username.toLowerCase())) {
+              uniqueMap.set(nc.username.toLowerCase(), nc);
+            }
+          });
+          return Array.from(uniqueMap.values());
+        });
       }
       
       // Reset input
