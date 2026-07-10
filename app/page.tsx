@@ -59,7 +59,7 @@ export default function ExportPage() {
       let pageKey: string | undefined = undefined;
       
       do {
-        const response = await alchemy.nft.getOwnersForContract(addressToFetch, {
+        const response: any = await alchemy.nft.getOwnersForContract(addressToFetch, {
           pageKey: pageKey
         });
         
