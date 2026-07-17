@@ -22,6 +22,7 @@ export default function RootLayout({
             <a href="/" className="px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors">Export Holders</a>
             <a href="/whitelist" className="px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors">Whitelist Manager</a>
             <a href="/allocation" className="px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors">Community Allocation</a>
+            <a href="/tracker" className="px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors">Collab Tracker</a>
           </nav>
         </aside>
         <main className="flex-1 p-8 overflow-auto">
