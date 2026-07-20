@@ -23,6 +23,7 @@ export default function RootLayout({
             <a href="/whitelist" className="px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors">Whitelist Manager</a>
             <a href="/allocation" className="px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors">Community Allocation</a>
             <a href="/tracker" className="px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors">Collab Tracker</a>
+            <a href="/sybil" className="px-4 py-2 rounded-lg bg-red-900/20 text-red-400 hover:bg-red-900/40 transition-colors border border-red-900/50 mt-4">Sybil Detector</a>
           </nav>
         </aside>
         <main className="flex-1 p-8 overflow-auto">
