@@ -164,14 +164,30 @@ export default function TrackerPage() {
       const startIdx = lines[0]?.toLowerCase().includes('name') ? 1 : 0;
       
       for (let i = startIdx; i < lines.length; i++) {
-        // Simple CSV parse handling quotes for JSON stringified wallets
-        const regex = /(?:^|,)(?:"([^"]*)"|([^,]*))/g;
-        let match;
-        const parts = [];
-        while ((match = regex.exec(lines[i])) !== null) {
-          if (match[0] === "" && parts.length > 0) break;
-          parts.push(match[1] !== undefined ? match[1].replace(/""/g, '"') : match[2] || "");
+        if (!lines[i].trim()) continue;
+        
+        const parts: string[] = [];
+        let current = '';
+        let inQuotes = false;
+        const line = lines[i].trim();
+        
+        for (let j = 0; j < line.length; j++) {
+          const char = line[j];
+          if (char === '"') {
+            if (inQuotes && line[j+1] === '"') {
+              current += '"';
+              j++;
+            } else {
+              inQuotes = !inQuotes;
+            }
+          } else if (char === ',' && !inQuotes) {
+            parts.push(current);
+            current = '';
+          } else {
+            current += char;
+          }
         }
+        parts.push(current);
 
         if (parts.length >= 2 && parts[0].trim() !== "") {
           const name = parts[0].trim();

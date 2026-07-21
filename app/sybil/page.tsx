@@ -170,11 +170,16 @@ export default function SybilPage() {
     
     targetMap.forEach((items, address) => {
       if (items.length > 1) {
+        let maxSameBlock = 0;
+        const blockCounts = new Map<number, number>();
+        items.forEach(i => blockCounts.set(i.blockNum, (blockCounts.get(i.blockNum) || 0) + 1));
+        blockCounts.forEach(count => { if (count > maxSameBlock) maxSameBlock = count; });
+
         results.push({ 
           type: 'Sent funds to same wallet', 
           address, 
           wallets: items.map(i => i.w),
-          sameBlockCount: 0
+          sameBlockCount: maxSameBlock
         });
       }
     });
