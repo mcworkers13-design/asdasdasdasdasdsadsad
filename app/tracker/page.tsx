@@ -14,6 +14,9 @@ type Collab = {
 
 export default function TrackerPage() {
   const [collabs, setCollabs] = useState<Collab[]>([]);
+  
+  // Search state
+  const [searchQuery, setSearchQuery] = useState("");
   const [newName, setNewName] = useState("");
   const [newUsername, setNewUsername] = useState("");
   const [newGtdSpots, setNewGtdSpots] = useState<number | "">("");
@@ -297,6 +300,11 @@ export default function TrackerPage() {
     return a.isFinished ? 1 : -1;
   });
 
+  const filteredCollabs = sortedCollabs.filter(c => 
+    c.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    (c.username && c.username.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
   const completedCount = collabs.filter(c => c.isFinished).length;
 
   return (
@@ -476,7 +484,7 @@ export default function TrackerPage() {
 
         {/* Right Column: Results Table */}
         <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-xl flex flex-col h-[700px]">
-          <div className="flex justify-between items-center mb-6">
+          <div className="flex justify-between items-center mb-4">
             <div>
               <h2 className="text-xl font-bold">Tracked Collabs</h2>
               <div className="text-sm text-gray-400 mt-1">
@@ -508,14 +516,27 @@ export default function TrackerPage() {
             </div>
           </div>
           
+          <div className="mb-6 relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            </div>
+            <input 
+              type="text"
+              placeholder="Search by community name or @username..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-gray-950 border border-gray-800 rounded-xl pl-10 pr-4 py-3 text-white text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-inner"
+            />
+          </div>
+          
           <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
-            {sortedCollabs.length === 0 ? (
+            {filteredCollabs.length === 0 ? (
               <div className="h-full flex items-center justify-center text-center text-gray-500 border-2 border-dashed border-gray-800 rounded-xl p-8">
-                Your tracker is empty. Add a collab or import a previously saved CSV file to get started.
+                {collabs.length === 0 ? "Your tracker is empty. Add a collab or import a previously saved CSV file to get started." : "No collabs match your search."}
               </div>
             ) : (
               <div className="flex flex-col gap-3">
-                {sortedCollabs.map((c) => (
+                {filteredCollabs.map((c) => (
                   <div 
                     key={c.id} 
                     className={`border rounded-xl p-4 flex justify-between items-center group relative overflow-hidden transition-all duration-300
